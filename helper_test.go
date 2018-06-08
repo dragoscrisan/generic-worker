@@ -432,7 +432,7 @@ func toMountArray(t *testing.T, x interface{}) []json.RawMessage {
 func cancelTask(t *testing.T) (td *tcqueue.TaskDefinitionRequest, payload GenericWorkerPayload) {
 	payload = GenericWorkerPayload{
 		Command:    goRun("resolvetask.go"),
-		MaxRunTime: 60,
+		MaxRunTime: 120,
 		Artifacts: []Artifact{
 			{
 				Type:    "file",
