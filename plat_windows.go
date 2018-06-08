@@ -17,8 +17,7 @@ import (
 	"github.com/dchest/uniuri"
 	"github.com/taskcluster/generic-worker/process"
 	"github.com/taskcluster/generic-worker/runtime"
-	"github.com/taskcluster/runlib/subprocess"
-	"github.com/taskcluster/runlib/win32"
+	"github.com/taskcluster/generic-worker/win32"
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 )
@@ -113,7 +112,7 @@ func prepareTaskUser(userName string) (reboot bool) {
 		if err != nil {
 			panic(err)
 		}
-		loginInfo := &subprocess.LoginInfo{
+		loginInfo := &process.LoginInfo{
 			HUser: hToken,
 		}
 		// At this point, we know we have already booted into the new task user, and the user
@@ -152,8 +151,8 @@ func prepareTaskUser(userName string) (reboot bool) {
 		panic(err)
 	}
 	// set APPDATA
-	var loginInfo *subprocess.LoginInfo
-	loginInfo, err = subprocess.NewLoginInfo(user.Name, user.Password)
+	var loginInfo *process.LoginInfo
+	loginInfo, err = process.NewLoginInfo(user.Name, user.Password)
 	if err != nil {
 		panic(err)
 	}
@@ -228,8 +227,8 @@ func (task *TaskRun) generateCommand(index int) error {
 	return nil
 }
 
-func TaskUserLoginInfo() (loginInfo *subprocess.LoginInfo, err error) {
-	loginInfo = &subprocess.LoginInfo{}
+func TaskUserLoginInfo() (loginInfo *process.LoginInfo, err error) {
+	loginInfo = &process.LoginInfo{}
 	if !config.RunTasksAsCurrentUser {
 		var hToken syscall.Handle
 		hToken, err = win32.InteractiveUserToken(time.Minute)

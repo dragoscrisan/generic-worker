@@ -11,9 +11,18 @@ import (
 	"time"
 
 	"github.com/taskcluster/generic-worker/runtime"
-	"github.com/taskcluster/runlib/subprocess"
-	"github.com/taskcluster/runlib/win32"
+	"github.com/taskcluster/generic-worker/win32"
 )
+
+type LoginInfo struct {
+	Username, Password string
+	HUser, HProfile    syscall.Handle
+}
+
+func NewLoginInfo(username, password string) (*LoginInfo, error) {
+	result := &LoginInfo{Username: username, Password: password}
+	return result, nil
+}
 
 type Command struct {
 	mutex sync.RWMutex
@@ -53,7 +62,7 @@ func (r *Result) Crashed() bool {
 	return r.SystemError != nil && !r.Aborted
 }
 
-func NewCommand(commandLine []string, workingDirectory string, env []string, loginInfo *subprocess.LoginInfo) (*Command, error) {
+func NewCommand(commandLine []string, workingDirectory string, env []string, loginInfo *LoginInfo) (*Command, error) {
 	if loginInfo != nil && loginInfo.HUser != 0 {
 		environment, err := win32.CreateEnvironment(&env, loginInfo.HUser)
 		if err != nil {
@@ -201,5 +210,5 @@ func (c *Command) Kill() (killOutput []byte, err error) {
 
 type LogonSession struct {
 	User      *runtime.OSUser
-	LoginInfo *subprocess.LoginInfo
+	LoginInfo *LoginInfo
 }
