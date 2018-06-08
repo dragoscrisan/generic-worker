@@ -13,6 +13,7 @@ import (
 )
 
 var (
+	advapi32 = NewLazyDLL("advapi32.dll")
 	kernel32 = NewLazyDLL("kernel32.dll")
 	ole32    = NewLazyDLL("ole32.dll")
 	shell32  = NewLazyDLL("shell32.dll")
@@ -30,6 +31,7 @@ var (
 	procGetUserProfileDirectory      = userenv.NewProc("GetUserProfileDirectoryW")
 	procVerifyVersionInfoW           = kernel32.NewProc("VerifyVersionInfoW")
 	procVerSetConditionMask          = kernel32.NewProc("VerSetConditionMask")
+	procGetTokenInformation          = advapi32.NewProc("GetTokenInformation")
 
 	FOLDERID_LocalAppData   = syscall.GUID{Data1: 0xF1B32785, Data2: 0x6FBA, Data3: 0x4FCF, Data4: [8]byte{0x9D, 0x55, 0x7B, 0x8E, 0x7F, 0x15, 0x70, 0x91}}
 	FOLDERID_RoamingAppData = syscall.GUID{Data1: 0x3EB685DB, Data2: 0x65F9, Data3: 0x4CF6, Data4: [8]byte{0xA0, 0x3A, 0xE3, 0xEF, 0x65, 0x72, 0x9F, 0x3D}}
@@ -49,7 +51,12 @@ const (
 	VER_GREATER_EQUAL    = 3
 
 	ERROR_OLD_WIN_VERSION syscall.Errno = 1150
+
+	// See https://msdn.microsoft.com/en-us/library/windows/desktop/aa379626(v=vs.85).aspx
+	TokenLinkedToken = 19
 )
+
+type TOKEN_INFORMATION_CLASS uint32
 
 type OSVersionInfoEx struct {
 	OSVersionInfoSize uint32
@@ -412,4 +419,52 @@ func GetUserProfileDirectory(
 		err = os.NewSyscallError("GetUserProfileDirectory", e1)
 	}
 	return
+}
+
+// https://msdn.microsoft.com/en-us/library/windows/desktop/aa446671(v=vs.85).aspx
+// BOOL WINAPI GetTokenInformation(
+//   _In_      HANDLE                  TokenHandle,
+//   _In_      TOKEN_INFORMATION_CLASS TokenInformationClass,
+//   _Out_opt_ LPVOID                  TokenInformation,
+//   _In_      DWORD                   TokenInformationLength,
+//   _Out_     PDWORD                  ReturnLength
+// );
+func GetTokenInformation(
+	tokenHandle syscall.Handle,
+	tokenInformationClass TOKEN_INFORMATION_CLASS,
+	tokenInformation *byte,
+	tokenInformationLength uint32,
+	returnLength *uint32,
+) (err error) {
+	r1, _, e1 := procGetTokenInformation.Call(
+		uintptr(tokenHandle),
+		uintptr(tokenInformationClass),
+		uintptr(unsafe.Pointer(tokenInformation)),
+		uintptr(tokenInformationLength),
+		uintptr(unsafe.Pointer(returnLength)),
+	)
+	if r1 == 0 {
+		err = os.NewSyscallError("GetTokenInformation", e1)
+	}
+	return
+}
+
+func GetLinkedToken(hToken syscall.Handle) (syscall.Handle, error) {
+	tokenInformationLength := uint32(0)
+	_ = GetTokenInformation(hToken, TokenLinkedToken, nil, 0, &tokenInformationLength)
+	tokenInformation := make([]byte, tokenInformationLength)
+	err := GetTokenInformation(hToken, TokenLinkedToken, &tokenInformation[0], tokenInformationLength, &tokenInformationLength)
+	if err != nil {
+		return 0, err
+	}
+	linkedTokenStruct := (*TOKEN_LINKED_TOKEN)(unsafe.Pointer(&tokenInformation[0]))
+	return linkedTokenStruct.LinkedToken, nil
+}
+
+// https://msdn.microsoft.com/en-us/library/windows/desktop/bb530719(v=vs.85).aspx
+// typedef struct _TOKEN_LINKED_TOKEN {
+//   HANDLE LinkedToken;
+// } TOKEN_LINKED_TOKEN, *PTOKEN_LINKED_TOKEN;
+type TOKEN_LINKED_TOKEN struct {
+	LinkedToken syscall.Handle // HANDLE
 }
