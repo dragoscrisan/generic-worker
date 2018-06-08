@@ -72,7 +72,15 @@ type OSVersionInfoEx struct {
 	Reserve           byte
 }
 
+var (
+	isWindows8OrGreater *bool
+)
+
 func IsWindows8OrGreater() bool {
+	// only needs to be evaluated once, so use cached value if set
+	if isWindows8OrGreater != nil {
+		return *isWindows8OrGreater
+	}
 	cm := VerSetConditionMask(0, VER_MAJORVERSION, VER_GREATER_EQUAL)
 	cm = VerSetConditionMask(cm, VER_MINORVERSION, VER_GREATER_EQUAL)
 	cm = VerSetConditionMask(cm, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL)
@@ -81,6 +89,7 @@ func IsWindows8OrGreater() bool {
 		MajorVersion: 6,
 		MinorVersion: 2,
 	}, VER_MAJORVERSION|VER_MINORVERSION|VER_SERVICEPACKMAJOR|VER_SERVICEPACKMINOR, cm)
+	isWindows8OrGreater = &r
 	return r
 }
 
