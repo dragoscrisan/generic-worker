@@ -29,6 +29,7 @@ type (
 		logWriter          io.Writer
 		reclaimTimer       *time.Timer
 		maxRunTimeDeadline time.Time
+		queueMux           sync.RWMutex
 		Queue              *tcqueue.Queue     `json:"-"`
 		StatusManager      *TaskStatusManager `json:"-"`
 		LocalClaimTime     time.Time          `json:"-"`
