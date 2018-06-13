@@ -209,7 +209,7 @@ func TestMissingScopes(t *testing.T) {
 
 // TestMissingDependency tests that if artifact content is mounted, it must be included as a task dependency
 func TestMissingMountsDependency(t *testing.T) {
-	defer setup(t, "TestMissingMountsDependency")()
+	defer setup(t)()
 	mounts := []MountEntry{
 		// requires scope "queue:get-artifact:SampleArtifacts/_/X.txt"
 		&FileMount{
@@ -364,7 +364,7 @@ func TestCorruptZipDoesntCrashWorker(t *testing.T) {
 // TestNonExistentArtifact depends on an artifact that does not exist from a
 // task that *does* exist.
 func TestNonExistentArtifact(t *testing.T) {
-	defer setup(t, "TestNonExistentArtifact")()
+	defer setup(t)()
 	mounts := []MountEntry{
 		// requires scope "queue:get-artifact:SampleArtifacts/_/X.txt"
 		&ReadOnlyDirectory{
