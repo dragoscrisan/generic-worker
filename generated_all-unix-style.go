@@ -108,6 +108,11 @@ type (
 		// Since: generic-worker 5.3.0
 		ChainOfTrust bool `json:"chainOfTrust,omitempty"`
 
+		// Blah blah blah
+		//
+		// Since: generic-worker 10.9.0
+		RunAsAdministrator bool `json:"runAsAdministrator,omitempty"`
+
 		// The taskcluster proxy provides an easy and safe way to make authenticated
 		// taskcluster requests within the scope(s) of a particular task. See
 		// [the github project](https://github.com/taskcluster/taskcluster-proxy) for more information.
@@ -533,6 +538,11 @@ func taskPayloadSchema() string {
         "chainOfTrust": {
           "description": "An artifact named ` + "`" + `public/chainOfTrust.json.asc` + "`" + ` should be generated\nwhich will include information for downstream tasks to build a level\nof trust for the artifacts produced by the task and the environment\nit ran in.\n\nSince: generic-worker 5.3.0",
           "title": "Enable generation of a openpgp signed Chain of Trust artifact",
+          "type": "boolean"
+        },
+        "runAsAdministrator": {
+          "description": "Blah blah blah\n\nSince: generic-worker 10.9.0",
+          "title": "Blah blah blah",
           "type": "boolean"
         },
         "taskclusterProxy": {
