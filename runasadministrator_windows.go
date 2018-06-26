@@ -1,9 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
-	"time"
 
+	"github.com/taskcluster/generic-worker/win32"
 	"github.com/taskcluster/taskcluster-base-go/scopes"
 )
 
@@ -50,14 +51,13 @@ type RunAsAdministratorHandler struct {
 }
 
 func (l *RunAsAdministratorTask) Start() *CommandExecutionError {
-	s := &http.Server{
-		Addr:           ":8080",
-		Handler:        &RunAsAdministratorHandler{},
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
+	for _, c := range l.task.Commands {
+		adminToken, err := win32.GetLinkedToken(c.Cmd.SysProcAttr.Token)
+		if err != nil {
+			return Failure(fmt.Sprintf("Could not get auth token to run command as administrator: %v", err))
+		}
+		c.Cmd.SysProcAttr.Token = adminToken
 	}
-	go ProcessRequests(s)
 	return nil
 }
 

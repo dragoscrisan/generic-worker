@@ -30,6 +30,7 @@ type TaskContext struct {
 func platformFeatures() []Feature {
 	return []Feature{
 		&RDPFeature{},
+		&RunAsAdministratorFeature{},
 	}
 }
 
