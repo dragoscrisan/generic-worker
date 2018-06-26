@@ -9,7 +9,7 @@ import (
 
 // Exit codes specified in OnExitStatus should resolve as itermittent
 func TestIntermittentCodeCommandIntermittent(t *testing.T) {
-	defer setup(t, "TestIntermittentCode")()
+	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command:    returnExitCode(123),
 		MaxRunTime: 10,
@@ -27,7 +27,7 @@ func TestIntermittentCodeCommandIntermittent(t *testing.T) {
 
 // Exit codes _not_ specified in OnExitStatus should resolve normally
 func TestIntermittentCodeCommandFailure(t *testing.T) {
-	defer setup(t, "TestIntermittentCodeCommandFailure")()
+	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command:    returnExitCode(456),
 		MaxRunTime: 10,
@@ -42,7 +42,7 @@ func TestIntermittentCodeCommandFailure(t *testing.T) {
 
 // Exit codes should not override success
 func TestIntermittentCodeCommandSuccess(t *testing.T) {
-	defer setup(t, "TestIntermittentCodeCommandSuccess")()
+	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command:    returnExitCode(0),
 		MaxRunTime: 10,
@@ -57,7 +57,7 @@ func TestIntermittentCodeCommandSuccess(t *testing.T) {
 
 // Exit codes as a list
 func TestIntermittentListCommandIntermittent(t *testing.T) {
-	defer setup(t, "TestIntermittentListCommandIntermittent")()
+	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command:    returnExitCode(10),
 		MaxRunTime: 10,
@@ -75,7 +75,7 @@ func TestIntermittentListCommandIntermittent(t *testing.T) {
 
 // Exit codes with empty list are fine
 func TestIntermittentEmptyListCommandSuccess(t *testing.T) {
-	defer setup(t, "TestIntermittentEmptyListCommandSuccess")()
+	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command:    returnExitCode(0),
 		MaxRunTime: 10,
@@ -90,7 +90,7 @@ func TestIntermittentEmptyListCommandSuccess(t *testing.T) {
 
 // Exit codes with empty list are fine (failure)
 func TestIntermittentEmptyListCommandFailure(t *testing.T) {
-	defer setup(t, "TestIntermittentEmptyListCommandFailure")()
+	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command:    returnExitCode(1),
 		MaxRunTime: 10,
@@ -105,7 +105,7 @@ func TestIntermittentEmptyListCommandFailure(t *testing.T) {
 
 // Not allowed to specify negative exit code
 func TestIntermittentNegativeExitCode(t *testing.T) {
-	defer setup(t, "TestIntermittentNegativeExitCode")()
+	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command:    returnExitCode(1),
 		MaxRunTime: 10,
