@@ -51,6 +51,10 @@ type RunAsAdministratorHandler struct {
 }
 
 func (l *RunAsAdministratorTask) Start() *CommandExecutionError {
+	if config.RunTasksAsCurrentUser {
+		// already running as LocalSystem with UAC elevation
+		return nil
+	}
 	for _, c := range l.task.Commands {
 		adminToken, err := win32.GetLinkedToken(c.Cmd.SysProcAttr.Token)
 		if err != nil {

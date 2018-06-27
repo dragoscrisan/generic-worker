@@ -26,7 +26,7 @@ func TestMissingScopesOSGroups(t *testing.T) {
 		t.Fatalf("Error when trying to read log file: %v", err)
 	}
 	logtext := string(bytes)
-	if !strings.Contains(logtext, "generic-worker:os-group:abc") || !strings.Contains(logtext, "generic-worker:os-group:def") {
+	if !strings.Contains(logtext, "generic-worker:os-group:"+td.ProvisionerID+"/"+td.WorkerType+"/abc") || !strings.Contains(logtext, "generic-worker:os-group:"+td.ProvisionerID+"/"+td.WorkerType+"/def") {
 		t.Fatalf("Was expecting log file to contain missing scopes, but it doesn't")
 	}
 }
@@ -39,7 +39,10 @@ func TestOSGroupsRespected(t *testing.T) {
 		OSGroups:   []string{"abc", "def"},
 	}
 	td := testTask(t)
-	td.Scopes = []string{"generic-worker:os-group:abc", "generic-worker:os-group:def"}
+	td.Scopes = []string{
+		"generic-worker:os-group:" + td.ProvisionerID + "/" + td.WorkerType + "/abc",
+		"generic-worker:os-group:" + td.ProvisionerID + "/" + td.WorkerType + "/def",
+	}
 
 	if config.RunTasksAsCurrentUser {
 		_ = submitAndAssert(t, td, payload, "completed", "completed")

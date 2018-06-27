@@ -22,7 +22,7 @@ func TestRunAsAdministratorEnabled(t *testing.T) {
 	td := testTask(t)
 	td.Scopes = []string{
 		"generic-worker:run-as-administrator:" + config.ProvisionerID + "/" + config.WorkerType,
-		"generic-worker:os-group:Administrators",
+		"generic-worker:os-group:" + config.ProvisionerID + "/" + config.WorkerType + "/Administrators",
 	}
 
 	_ = submitAndAssert(t, td, payload, "completed", "completed")
@@ -57,7 +57,7 @@ func TestRunAsAdministratorEnabledMissingScopes(t *testing.T) {
 	}
 	td := testTask(t)
 	td.Scopes = []string{
-		"generic-worker:os-group:Administrators",
+		"generic-worker:os-group:" + config.ProvisionerID + "/" + config.WorkerType + "/Administrators",
 	}
 
 	_ = submitAndAssert(t, td, payload, "exception", "malformed-payload")
@@ -77,7 +77,7 @@ func TestRunAsAdministratorMissingOSGroup(t *testing.T) {
 	td := testTask(t)
 	td.Scopes = []string{
 		"generic-worker:run-as-administrator:" + config.ProvisionerID + "/" + config.WorkerType,
-		"generic-worker:os-group:Administrators",
+		"generic-worker:os-group:" + config.ProvisionerID + "/" + config.WorkerType + "/Administrators",
 	}
 
 	_ = submitAndAssert(t, td, payload, "completed", "completed")
@@ -99,7 +99,7 @@ func TestChainOfTrustWithRunAsAdministrator(t *testing.T) {
 	td := testTask(t)
 	td.Scopes = []string{
 		"generic-worker:run-as-administrator:" + config.ProvisionerID + "/" + config.WorkerType,
-		"generic-worker:os-group:Administrators",
+		"generic-worker:os-group:" + config.ProvisionerID + "/" + config.WorkerType + "/Administrators",
 	}
 
 	if config.RunTasksAsCurrentUser {
@@ -130,7 +130,7 @@ func TestChainOfTrustWithoutRunAsAdministrator(t *testing.T) {
 	td := testTask(t)
 	td.Scopes = []string{
 		"generic-worker:run-as-administrator:" + config.ProvisionerID + "/" + config.WorkerType,
-		"generic-worker:os-group:Administrators",
+		"generic-worker:os-group:" + config.ProvisionerID + "/" + config.WorkerType + "/Administrators",
 	}
 
 	if config.RunTasksAsCurrentUser {

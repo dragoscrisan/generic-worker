@@ -42,7 +42,7 @@ func (osGroups *OSGroups) ReservedArtifacts() []string {
 func (osGroups *OSGroups) RequiredScopes() scopes.Required {
 	requiredScopes := make([]string, len(osGroups.Task.Payload.OSGroups), len(osGroups.Task.Payload.OSGroups))
 	for i, osGroup := range osGroups.Task.Payload.OSGroups {
-		requiredScopes[i] = "generic-worker:os-group:" + osGroup
+		requiredScopes[i] = "generic-worker:os-group:" + config.ProvisionerID + "/" + config.WorkerType + "/" + osGroup
 	}
 	return scopes.Required{requiredScopes}
 }
