@@ -3,7 +3,9 @@ package win32
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
+	"runtime"
 	"sort"
 	"strings"
 	"syscall"
@@ -32,12 +34,22 @@ var (
 	procVerifyVersionInfoW           = kernel32.NewProc("VerifyVersionInfoW")
 	procVerSetConditionMask          = kernel32.NewProc("VerSetConditionMask")
 	procGetTokenInformation          = advapi32.NewProc("GetTokenInformation")
+	procLoadUserProfileW             = userenv.NewProc("LoadUserProfileW")
+	procUnloadUserProfile            = userenv.NewProc("UnloadUserProfile")
+	procCloseHandle                  = kernel32.NewProc("CloseHandle")
+	procLogonUserW                   = advapi32.NewProc("LogonUserW")
 
 	FOLDERID_LocalAppData   = syscall.GUID{Data1: 0xF1B32785, Data2: 0x6FBA, Data3: 0x4FCF, Data4: [8]byte{0x9D, 0x55, 0x7B, 0x8E, 0x7F, 0x15, 0x70, 0x91}}
 	FOLDERID_RoamingAppData = syscall.GUID{Data1: 0x3EB685DB, Data2: 0x65F9, Data3: 0x4CF6, Data4: [8]byte{0xA0, 0x3A, 0xE3, 0xEF, 0x65, 0x72, 0x9F, 0x3D}}
 )
 
 const (
+	LOGON32_PROVIDER_DEFAULT = 0
+
+	LOGON32_LOGON_INTERACTIVE = 2
+
+	PI_NOUI = 1
+
 	KF_FLAG_CREATE uint32 = 0x00008000
 
 	CREATE_BREAKAWAY_FROM_JOB = 0x01000000
@@ -72,9 +84,36 @@ type OSVersionInfoEx struct {
 	Reserve           byte
 }
 
+type ProfileInfo struct {
+	Size        uint32
+	Flags       uint32
+	Username    *uint16
+	ProfilePath *uint16
+	DefaultPath *uint16
+	ServerName  *uint16
+	PolicyPath  *uint16
+	Profile     syscall.Handle
+}
+
 var (
 	isWindows8OrGreater *bool
 )
+
+func CloseHandle(handle syscall.Handle) (err error) {
+	syscall.CloseHandle(handle)
+	r1, _, e1 := procCloseHandle.Call(
+		uintptr(handle),
+	)
+	if r1 == 0 {
+		if e1 != syscall.Errno(0) {
+			err = error(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+		log.Printf("Error when closing handle: %v", err)
+	}
+	return
+}
 
 func IsWindows8OrGreater() bool {
 	// only needs to be evaluated once, so use cached value if set
@@ -91,6 +130,43 @@ func IsWindows8OrGreater() bool {
 	}, VER_MAJORVERSION|VER_MINORVERSION|VER_SERVICEPACKMAJOR|VER_SERVICEPACKMINOR, cm)
 	isWindows8OrGreater = &r
 	return r
+}
+
+func LogonUser(username *uint16, domain *uint16, password *uint16, logonType uint32, logonProvider uint32) (token syscall.Handle, err error) {
+	r1, _, e1 := procLogonUserW.Call(
+		uintptr(unsafe.Pointer(username)),
+		uintptr(unsafe.Pointer(domain)),
+		uintptr(unsafe.Pointer(password)),
+		uintptr(logonType),
+		uintptr(logonProvider),
+		uintptr(unsafe.Pointer(&token)))
+	runtime.KeepAlive(username)
+	runtime.KeepAlive(domain)
+	runtime.KeepAlive(password)
+	if int(r1) == 0 {
+		return syscall.InvalidHandle, os.NewSyscallError("LogonUser", e1)
+	}
+	return
+}
+
+func LoadUserProfile(token syscall.Handle, pinfo *ProfileInfo) error {
+	r1, _, e1 := procLoadUserProfileW.Call(
+		uintptr(token),
+		uintptr(unsafe.Pointer(pinfo)))
+	runtime.KeepAlive(pinfo)
+	if int(r1) == 0 {
+		return os.NewSyscallError("LoadUserProfile", e1)
+	}
+	return nil
+}
+
+func UnloadUserProfile(token, profile syscall.Handle) error {
+	if r1, _, e1 := procUnloadUserProfile.Call(
+		uintptr(token),
+		uintptr(profile)); int(r1) == 0 {
+		return os.NewSyscallError("UnloadUserProfile", e1)
+	}
+	return nil
 }
 
 // https://msdn.microsoft.com/en-us/library/windows/desktop/bb762270(v=vs.85).aspx

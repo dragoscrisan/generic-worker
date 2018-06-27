@@ -18,10 +18,15 @@ type LoginInfo struct {
 	Username string
 	Password string
 	HUser    syscall.Handle
+	HProfile syscall.Handle
 }
 
 func NewLoginInfo(username, password string) (*LoginInfo, error) {
 	result := &LoginInfo{Username: username, Password: password}
+	err := result.Prepare()
+	if err != nil {
+		return nil, err
+	}
 	return result, nil
 }
 
