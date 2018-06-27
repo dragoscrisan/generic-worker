@@ -155,11 +155,14 @@ properties:
           Since: generic-worker 10.6.0
       runAsAdministrator:
         type: boolean
-        title: Blah blah blah
+        title: Run commands with UAC process elevation
         description: |-
-          Blah blah blah
+          Runs commands as Administrator. Property `task.payload.osGroups`
+          must include `"Administrators"`. Requires scope
+          `generic-worker:run-as-administrator:<provisionerId>/<workerType>`.
+          Cannot be used together with feature `chainOfTrust`.
 
-          Since: generic-worker 10.9.0
+          Since: generic-worker 10.11.0
   mounts:
     type: array
     description: |-

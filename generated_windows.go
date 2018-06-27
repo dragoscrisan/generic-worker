@@ -106,9 +106,12 @@ type (
 		// Since: generic-worker 5.3.0
 		ChainOfTrust bool `json:"chainOfTrust,omitempty"`
 
-		// Blah blah blah
+		// Runs commands as Administrator. Property `task.payload.osGroups`
+		// must include `"Administrators"`. Requires scope
+		// `generic-worker:run-as-administrator:<provisionerId>/<workerType>`.
+		// Cannot be used together with feature `chainOfTrust`.
 		//
-		// Since: generic-worker 10.9.0
+		// Since: generic-worker 10.11.0
 		RunAsAdministrator bool `json:"runAsAdministrator,omitempty"`
 
 		// The taskcluster proxy provides an easy and safe way to make authenticated
@@ -570,8 +573,8 @@ func taskPayloadSchema() string {
           "type": "boolean"
         },
         "runAsAdministrator": {
-          "description": "Blah blah blah\n\nSince: generic-worker 10.9.0",
-          "title": "Blah blah blah",
+          "description": "Runs commands as Administrator. Property ` + "`" + `task.payload.osGroups` + "`" + `\nmust include ` + "`" + `\"Administrators\"` + "`" + `. Requires scope\n` + "`" + `generic-worker:run-as-administrator:\u003cprovisionerId\u003e/\u003cworkerType\u003e` + "`" + `.\nCannot be used together with feature ` + "`" + `chainOfTrust` + "`" + `.\n\nSince: generic-worker 10.11.0",
+          "title": "Run commands with UAC process elevation",
           "type": "boolean"
         },
         "taskclusterProxy": {

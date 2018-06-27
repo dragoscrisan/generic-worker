@@ -54,7 +54,7 @@ func (l *RunAsAdministratorTask) Start() *CommandExecutionError {
 	for _, c := range l.task.Commands {
 		adminToken, err := win32.GetLinkedToken(c.Cmd.SysProcAttr.Token)
 		if err != nil {
-			return Failure(fmt.Sprintf("Could not get auth token to run command as administrator: %v", err))
+			return Failure(fmt.Errorf("Could not get auth token to run command as administrator: %v", err))
 		}
 		c.Cmd.SysProcAttr.Token = adminToken
 	}
