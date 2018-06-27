@@ -515,17 +515,17 @@ func GetUserProfileDirectory(
 //   _Out_     PDWORD                  ReturnLength
 // );
 func GetTokenInformation(
-	tokenHandle syscall.Token,
+	tokenHandle syscall.Handle,
 	tokenInformationClass TOKEN_INFORMATION_CLASS,
-	tokenInformation uintptr,
-	tokenInformationLength uintptr,
-	returnLength *uintptr,
+	tokenInformation *byte,
+	tokenInformationLength uint32,
+	returnLength *uint32,
 ) (err error) {
 	r1, _, e1 := procGetTokenInformation.Call(
 		uintptr(tokenHandle),
 		uintptr(tokenInformationClass),
 		uintptr(unsafe.Pointer(tokenInformation)),
-		tokenInformationLength,
+		uintptr(tokenInformationLength),
 		uintptr(unsafe.Pointer(returnLength)),
 	)
 	if r1 == 0 {
@@ -534,18 +534,16 @@ func GetTokenInformation(
 	return
 }
 
-func GetLinkedToken(hToken syscall.Token) (syscall.Token, error) {
-	linkedToken := TOKEN_LINKED_TOKEN{}
-	tokenInformationLength := unsafe.Sizeof(linkedToken)
-	returnLength := uintptr(0)
-	err := GetTokenInformation(hToken, TokenLinkedToken, uintptr(unsafe.Pointer(&linkedToken)), tokenInformationLength, &returnLength)
-	if returnLength != tokenInformationLength {
-		return 0, fmt.Errorf("Was expecting %v bytes of data from GetTokenInformation, but got %v bytes", returnLength, tokenInformationLength)
-	}
+func GetLinkedToken(hToken syscall.Handle) (syscall.Handle, error) {
+	tokenInformationLength := uint32(0)
+	_ = GetTokenInformation(hToken, TokenLinkedToken, nil, 0, &tokenInformationLength)
+	tokenInformation := make([]byte, tokenInformationLength)
+	err := GetTokenInformation(hToken, TokenLinkedToken, &tokenInformation[0], tokenInformationLength, &tokenInformationLength)
 	if err != nil {
 		return 0, err
 	}
-	return linkedToken.LinkedToken, nil
+	linkedTokenStruct := (*TOKEN_LINKED_TOKEN)(unsafe.Pointer(&tokenInformation[0]))
+	return linkedTokenStruct.LinkedToken, nil
 }
 
 // https://msdn.microsoft.com/en-us/library/windows/desktop/bb530719(v=vs.85).aspx
@@ -553,5 +551,5 @@ func GetLinkedToken(hToken syscall.Token) (syscall.Token, error) {
 //   HANDLE LinkedToken;
 // } TOKEN_LINKED_TOKEN, *PTOKEN_LINKED_TOKEN;
 type TOKEN_LINKED_TOKEN struct {
-	LinkedToken syscall.Token // HANDLE
+	LinkedToken syscall.Handle // HANDLE
 }

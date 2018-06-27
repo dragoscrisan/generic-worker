@@ -84,6 +84,7 @@ func NewCommand(commandLine []string, workingDirectory string, env []string, log
 	if !isWindows8OrGreater {
 		creationFlags |= win32.CREATE_BREAKAWAY_FROM_JOB
 	}
+	log.Printf("Setting token %v for command %#v", loginInfo.HUser, commandLine)
 	if loginInfo != nil && loginInfo.HUser != 0 {
 		cmd.SysProcAttr = &syscall.SysProcAttr{
 			Token:         syscall.Token(loginInfo.HUser),
