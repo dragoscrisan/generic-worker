@@ -6,10 +6,10 @@ import (
 )
 
 func TestRunAsAdministratorEnabled(t *testing.T) {
+	defer setup(t)()
 	if config.RunTasksAsCurrentUser {
 		t.Skip("Skipping since running as current user...")
 	}
-	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
 			`whoami /groups | C:\Windows\System32\find.exe "S-1-16-12288" > nul`,
@@ -32,10 +32,10 @@ func TestRunAsAdministratorEnabled(t *testing.T) {
 }
 
 func TestRunAsAdministratorDisabled(t *testing.T) {
+	defer setup(t)()
 	if config.RunTasksAsCurrentUser {
 		t.Skip("Skipping since running as current user...")
 	}
-	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
 			`whoami /groups | C:\Windows\System32\find.exe "S-1-16-12288" > nul`,
@@ -48,10 +48,10 @@ func TestRunAsAdministratorDisabled(t *testing.T) {
 }
 
 func TestRunAsAdministratorEnabledMissingScopes(t *testing.T) {
+	defer setup(t)()
 	if config.RunTasksAsCurrentUser {
 		t.Skip("Skipping since running as current user...")
 	}
-	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
 			`whoami /groups | C:\Windows\System32\find.exe "S-1-16-12288" > nul`,
@@ -73,10 +73,10 @@ func TestRunAsAdministratorEnabledMissingScopes(t *testing.T) {
 }
 
 func TestRunAsAdministratorMissingOSGroup(t *testing.T) {
+	defer setup(t)()
 	if config.RunTasksAsCurrentUser {
 		t.Skip("Skipping since running as current user...")
 	}
-	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
 			`whoami /groups | C:\Windows\System32\find.exe "S-1-16-12288" > nul`,
