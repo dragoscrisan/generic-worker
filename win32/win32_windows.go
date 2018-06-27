@@ -439,7 +439,7 @@ func GetUserProfileDirectory(
 //   _Out_     PDWORD                  ReturnLength
 // );
 func GetTokenInformation(
-	tokenHandle syscall.Handle,
+	tokenHandle syscall.Token,
 	tokenInformationClass TOKEN_INFORMATION_CLASS,
 	tokenInformation uintptr,
 	tokenInformationLength uintptr,
@@ -458,7 +458,7 @@ func GetTokenInformation(
 	return
 }
 
-func GetLinkedToken(hToken syscall.Handle) (syscall.Handle, error) {
+func GetLinkedToken(hToken syscall.Token) (syscall.Token, error) {
 	linkedToken := TOKEN_LINKED_TOKEN{}
 	tokenInformationLength := unsafe.Sizeof(linkedToken)
 	returnLength := uintptr(0)
@@ -477,5 +477,5 @@ func GetLinkedToken(hToken syscall.Handle) (syscall.Handle, error) {
 //   HANDLE LinkedToken;
 // } TOKEN_LINKED_TOKEN, *PTOKEN_LINKED_TOKEN;
 type TOKEN_LINKED_TOKEN struct {
-	LinkedToken syscall.Handle // HANDLE
+	LinkedToken syscall.Token // HANDLE
 }

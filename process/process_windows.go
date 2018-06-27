@@ -15,8 +15,9 @@ import (
 )
 
 type LoginInfo struct {
-	Username, Password string
-	HUser, HProfile    syscall.Handle
+	Username string
+	Password string
+	HUser    syscall.Handle
 }
 
 func NewLoginInfo(username, password string) (*LoginInfo, error) {
