@@ -60,7 +60,7 @@ func TestRunAsAdministratorEnabledMissingScopes(t *testing.T) {
 		"generic-worker:os-group:Administrators",
 	}
 
-	_ = submitAndAssert(t, td, payload, "failed", "failed")
+	_ = submitAndAssert(t, td, payload, "exception", "malformed-payload")
 }
 
 func TestRunAsAdministratorMissingOSGroup(t *testing.T) {
