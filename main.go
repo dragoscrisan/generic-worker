@@ -338,7 +338,8 @@ func persistFeaturesState() (err error) {
 }
 
 func initialiseFeatures() (err error) {
-	Features = []Feature{
+	Features = platformFeatures()
+	Features = append(Features,
 		&LiveLogFeature{},
 		&TaskclusterProxyFeature{},
 		&OSGroupsFeature{},
@@ -348,8 +349,7 @@ func initialiseFeatures() (err error) {
 		// of signing key file, and a feature could change them, so we want these
 		// checks as late as possible
 		&ChainOfTrustFeature{},
-	}
-	Features = append(Features, platformFeatures()...)
+	)
 	for _, feature := range Features {
 		log.Printf("Initialising task feature %v...", feature.Name())
 		err := feature.Initialise()

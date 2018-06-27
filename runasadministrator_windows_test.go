@@ -70,6 +70,7 @@ func TestRunAsAdministratorMissingOSGroup(t *testing.T) {
 			`whoami /groups | find "12288" > nul`,
 		},
 		MaxRunTime: 10,
+		OSGroups:   []string{}, // Administrators not included!
 		Features: FeatureFlags{
 			RunAsAdministrator: true,
 		},
@@ -80,7 +81,7 @@ func TestRunAsAdministratorMissingOSGroup(t *testing.T) {
 		"generic-worker:os-group:" + td.ProvisionerID + "/" + td.WorkerType + "/Administrators",
 	}
 
-	_ = submitAndAssert(t, td, payload, "completed", "completed")
+	_ = submitAndAssert(t, td, payload, "exception", "malformed-payload")
 }
 
 func TestChainOfTrustWithRunAsAdministrator(t *testing.T) {
