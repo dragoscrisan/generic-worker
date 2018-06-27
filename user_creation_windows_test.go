@@ -7,10 +7,10 @@ import (
 )
 
 func TestRunAfterUserCreation(t *testing.T) {
-	defer setup(t)()
 	if config.RunTasksAsCurrentUser {
 		t.Skip("Skipping since running as current user...")
 	}
+	defer setup(t)()
 	config.RunAfterUserCreation = filepath.Join(testdataDir, "run-after-user.bat")
 	PrepareTaskEnvironment()
 	defer taskCleanup()

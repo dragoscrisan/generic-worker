@@ -6,10 +6,13 @@ import (
 )
 
 func TestRunAsAdministratorEnabled(t *testing.T) {
+	if config.RunTasksAsCurrentUser {
+		t.Skip("Skipping since running as current user...")
+	}
 	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
-			`whoami /groups | C:\Windows\System32\find.exe "12288" > nul`,
+			`whoami /groups | C:\Windows\System32\find.exe "S-1-16-12288" > nul`,
 		},
 		MaxRunTime: 10,
 		Features: FeatureFlags{
@@ -29,10 +32,13 @@ func TestRunAsAdministratorEnabled(t *testing.T) {
 }
 
 func TestRunAsAdministratorDisabled(t *testing.T) {
+	if config.RunTasksAsCurrentUser {
+		t.Skip("Skipping since running as current user...")
+	}
 	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
-			`whoami /groups | C:\Windows\System32\find.exe "12288" > nul`,
+			`whoami /groups | C:\Windows\System32\find.exe "S-1-16-12288" > nul`,
 		},
 		MaxRunTime: 10,
 	}
@@ -42,10 +48,13 @@ func TestRunAsAdministratorDisabled(t *testing.T) {
 }
 
 func TestRunAsAdministratorEnabledMissingScopes(t *testing.T) {
+	if config.RunTasksAsCurrentUser {
+		t.Skip("Skipping since running as current user...")
+	}
 	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
-			`whoami /groups | C:\Windows\System32\find.exe "12288" > nul`,
+			`whoami /groups | C:\Windows\System32\find.exe "S-1-16-12288" > nul`,
 		},
 		MaxRunTime: 10,
 		Features: FeatureFlags{
@@ -64,10 +73,13 @@ func TestRunAsAdministratorEnabledMissingScopes(t *testing.T) {
 }
 
 func TestRunAsAdministratorMissingOSGroup(t *testing.T) {
+	if config.RunTasksAsCurrentUser {
+		t.Skip("Skipping since running as current user...")
+	}
 	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
-			`whoami /groups | C:\Windows\System32\find.exe "12288" > nul`,
+			`whoami /groups | C:\Windows\System32\find.exe "S-1-16-12288" > nul`,
 		},
 		MaxRunTime: 10,
 		OSGroups:   []string{}, // Administrators not included!
