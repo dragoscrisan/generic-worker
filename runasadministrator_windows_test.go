@@ -9,7 +9,7 @@ func TestRunAsAdministratorEnabled(t *testing.T) {
 	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
-			`whoami /groups | find "12288" > nul`,
+			`whoami /groups | C:\Windows\System32\find.exe "12288" > nul`,
 		},
 		MaxRunTime: 10,
 		Features: FeatureFlags{
@@ -32,7 +32,7 @@ func TestRunAsAdministratorDisabled(t *testing.T) {
 	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
-			`whoami /groups | find "12288" > nul`,
+			`whoami /groups | C:\Windows\System32\find.exe "12288" > nul`,
 		},
 		MaxRunTime: 10,
 	}
@@ -45,7 +45,7 @@ func TestRunAsAdministratorEnabledMissingScopes(t *testing.T) {
 	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
-			`whoami /groups | find "12288" > nul`,
+			`whoami /groups | C:\Windows\System32\find.exe "12288" > nul`,
 		},
 		MaxRunTime: 10,
 		Features: FeatureFlags{
@@ -67,7 +67,7 @@ func TestRunAsAdministratorMissingOSGroup(t *testing.T) {
 	defer setup(t)()
 	payload := GenericWorkerPayload{
 		Command: []string{
-			`whoami /groups | find "12288" > nul`,
+			`whoami /groups | C:\Windows\System32\find.exe "12288" > nul`,
 		},
 		MaxRunTime: 10,
 		OSGroups:   []string{}, // Administrators not included!
