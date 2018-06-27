@@ -150,13 +150,6 @@ properties:
           [the github project](https://github.com/taskcluster/taskcluster-proxy) for more information.
 
           Since: generic-worker 10.6.0
-      runAsAdministrator:
-        type: boolean
-        title: Blah blah blah
-        description: |-
-          Blah blah blah
-
-          Since: generic-worker 10.9.0
   mounts:
     type: array
     description: |-
