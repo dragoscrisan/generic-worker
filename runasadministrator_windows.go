@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"syscall"
+	"time"
 
 	"github.com/taskcluster/generic-worker/win32"
 	"github.com/taskcluster/taskcluster-base-go/scopes"
@@ -57,9 +58,13 @@ func (l *RunAsAdministratorTask) Start() *CommandExecutionError {
 		// already running as LocalSystem with UAC elevation
 		return nil
 	}
+	token, err := win32.InteractiveUserToken(time.Minute)
+	log.Printf("User token is %v", token)
+	if err != nil {
+		panic(err)
+	}
 	for _, c := range l.task.Commands {
-		log.Printf("User token is %v", c.Cmd.SysProcAttr.Token)
-		adminToken, err := win32.GetLinkedToken(syscall.Handle(c.Cmd.SysProcAttr.Token))
+		adminToken, err := win32.GetLinkedToken(token)
 		if err != nil {
 			return MalformedPayloadError(fmt.Errorf(`Could not obtain UAC elevated auth token; you probably need to add group "Administrators" to task.payload.osGroups: %v`, err))
 		}
